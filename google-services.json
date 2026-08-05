@@ -1,0 +1,211 @@
+{
+  "project_info": {
+    "project_number": "484276241658",
+    "project_id": "smarty-pants-35ef5",
+    "storage_bucket": "smarty-pants-35ef5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:2bdeb88ab326b18dc9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.astroallo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-berv89i1e3j2gjtuojj9rgjtnaruc2qa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.astroallo",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "484276241658-m5f35rl5ae2gr9fp6l279llo8h06vs8f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.astroallo",
+            "certificate_hash": "34f47fa9a79bbb1b72385e81a4f13f491354f8d1"
+          }
+        },
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:3fc398007a1725fcc9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.geogiganto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-u6ppk30sp29al9411od2a23vvkpa1k0j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.geogiganto",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:cdb2277ff82d78cdc9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.historyhadro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:46232ea215e554a2c9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.mathrex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-c1sin1hcm3nmq10v5omes0556pvc17sh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.mathrex",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "484276241658-v7om8fsfmrvpnb16hoodjpahus2oh7mi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.mathrex",
+            "certificate_hash": "8682761320958014b45629870d2e0b867615bf93"
+          }
+        },
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:23f031b72ee708b4c9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.sciencesteggo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-nh948bpu82ifkrcs93ncp1oiel61n459.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.sciencesteggo",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "484276241658-p2ankfl18g15l9ha44epufr7lbsfgq81.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.sciencesteggo",
+            "certificate_hash": "53af863581f2af4cb5eeb9f86d5ba3423568e859"
+          }
+        },
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
