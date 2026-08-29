@@ -200,6 +200,7 @@ export default function DailyChallengeScreen() {
     const isCorrect = optionIndex === q.correctIndex;
 
     setFeedback(isCorrect ? 'correct' : 'incorrect');
+    soundManager.play(isCorrect ? 'correct' : 'incorrect');
 
     if (isCorrect) {
       correctRef.current += 1;

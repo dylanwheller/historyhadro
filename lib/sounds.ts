@@ -15,14 +15,14 @@ export type SoundName =
   | 'achievementUnlocked';
 
 const SOUND_FILES: Record<SoundName, number> = {
-  correct: require('../assets/sounds/correct.wav'),
+  correct: require('../assets/sounds/correct.mp3'),
   incorrect: require('../assets/sounds/incorrect.wav'),
   gameOver: require('../assets/sounds/game-over.wav'),
-  levelComplete: require('../assets/sounds/level-complete.wav'),
+  levelComplete: require('../assets/sounds/level-complete.mp3'),
   bossDefeated: require('../assets/sounds/boss-defeated.wav'),
-  defeatedByBoss: require('../assets/sounds/defeated-by-boss.wav'),
-  dailyChallengeComplete: require('../assets/sounds/daily-challenge-complete.wav'),
-  achievementUnlocked: require('../assets/sounds/achievement-unlocked.wav'),
+  defeatedByBoss: require('../assets/sounds/game-over.wav'),
+  dailyChallengeComplete: require('../assets/sounds/level-complete.mp3'),
+  achievementUnlocked: require('../assets/sounds/achievement-unlocked.mp3'),
 };
 
 class SoundManager {

@@ -16,6 +16,7 @@ import { useUser } from '@/lib/UserContext';
 import { WORLDS } from '@/data/worlds';
 import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
+import { soundManager } from '@/lib/sounds';
 
 const BOSS_QUESTIONS_TOTAL = 20;
 const DEFEAT_THRESHOLD    = 15;
@@ -133,6 +134,7 @@ export default function FinalBossScreen() {
     const newCorrect = correct + (isCorrect ? 1 : 0);
     const earned = isCorrect ? 15 : -25; // bigger rewards/penalties for final boss
 
+    soundManager.play(isCorrect ? 'correct' : 'incorrect');
     setCorrect(newCorrect);
     setPoints(p => Math.max(0, p + earned));
     if (!isCorrect) shake();
@@ -140,6 +142,7 @@ export default function FinalBossScreen() {
 
     setTimeout(() => {
       if (qIndex + 1 >= questions.length) {
+        soundManager.play(newCorrect >= DEFEAT_THRESHOLD ? 'bossDefeated' : 'defeatedByBoss');
         setPhase('complete');
       } else {
         setQIndex(i => i + 1);
