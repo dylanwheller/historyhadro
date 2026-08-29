@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { useUser } from '@/lib/UserContext';
 import { getLeaderboard } from '@/lib/firebase';
 
@@ -64,7 +65,7 @@ export default function LeaderboardScreen() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const onRefresh = useCallback(() => { setRefreshing(true); load(); }, [load]);
 
