@@ -44,15 +44,15 @@ const OTHER_APPS: PromoApp[] = [
 ];
 
 export default function CrossPromoSection() {
-  const { isPremium } = useSubscription();
+  const { isLifetime } = useSubscription();
 
   return (
     <View className="px-6 mb-6 gap-3">
       <View className="mb-1">
         <Text className="text-muted-foreground text-xs font-bold font-nunito uppercase tracking-widest">
-          {isPremium ? 'Already unlocked — try our other games!' : 'More from Smarty Pants'}
+          {isLifetime ? 'Already unlocked — try our other games!' : 'More from Smarty Pants'}
         </Text>
-        {!isPremium && (
+        {!isLifetime && (
           <Text className="text-muted-foreground text-xs font-nunito mt-1">
             One purchase unlocks all 6 apps
           </Text>
@@ -77,7 +77,7 @@ export default function CrossPromoSection() {
               <Text className="text-muted-foreground text-xs font-nunito">{app.tagline}</Text>
             </View>
           </View>
-          {isPremium ? (
+          {isLifetime ? (
             <Text className="text-primary text-xs font-bold font-nunito">✓ Included</Text>
           ) : (
             <ChevronRight size={16} color="#c4b5fd" />

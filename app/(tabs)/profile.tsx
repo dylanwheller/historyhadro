@@ -48,7 +48,7 @@ export default function ProfileScreen() {
   const { logout: logoutUser, user: localUser, setAgeRange, setAvatar } = useUser();
   const { getUnlockedAchievements } = useAchievements();
   const recentAchievements = getUnlockedAchievements().slice(-4);
-  const { hasAccess, toggleMockPremium, isMockPremium } = useSubscription();
+  const { hasAccess, isLifetime, toggleMockPremium, isMockPremium } = useSubscription();
 
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [difficultyUpdated, setDifficultyUpdated] = useState(false);
@@ -260,9 +260,11 @@ export default function ProfileScreen() {
                   <Crown size={22} className="text-primary" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-foreground font-bold font-nunito">HistoryHadro Premium</Text>
+                  <Text className="text-foreground font-bold font-nunito">
+                    {isLifetime ? 'All Apps Bundle' : 'HistoryHadro Premium'}
+                  </Text>
                   <Text className="text-muted-foreground text-xs font-nunito">
-                    Lifetime · All worlds · All apps
+                    {isLifetime ? 'All 6 apps · All worlds' : 'This app · All worlds'}
                   </Text>
                 </View>
                 <View className="bg-primary/10 px-2 py-1 rounded-full">
@@ -282,7 +284,7 @@ export default function ProfileScreen() {
               <View className="flex-1">
                 <Text className="text-foreground font-bold font-nunito">Unlock Everything</Text>
                 <Text className="text-muted-foreground text-xs font-nunito">
-                  R250 once-off · All worlds · All apps
+                  R100 this app · R500 all 6 apps
                 </Text>
               </View>
               <ChevronRight size={20} color="#a855f7" />

@@ -23,6 +23,7 @@ import {
   identifyUser,
   resetUser,
   hasPremiumEntitlement,
+  hasLifetimePurchase,
   getSubscriptionTier,
   getCustomerInfo,
   addCustomerInfoListener,
@@ -38,6 +39,8 @@ export type SubscriptionContextType = {
   isPremium: boolean;
   /** Alias for isPremium — used by world-gating logic. */
   hasAccess: boolean;
+  /** True when the active purchase is the all-apps lifetime bundle (vs individual). */
+  isLifetime: boolean;
   tier: SubscriptionTier;
   customerInfo: CustomerInfo | null;
   isLoading: boolean;
@@ -84,13 +87,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const { isPremium, hasAccess, tier } = useMemo(() => {
+  const { isPremium, hasAccess, isLifetime, tier } = useMemo(() => {
     // In dev builds the mock flag acts as a local override, bypassing RevenueCat
     const rcPremium = customerInfo ? hasPremiumEntitlement(customerInfo) : false;
     const isPremium = (__DEV__ && isMockPremium) || rcPremium;
+    const isLifetime = customerInfo ? hasLifetimePurchase(customerInfo) : false;
     return {
       isPremium,
       hasAccess: isPremium,
+      isLifetime,
       tier: isPremium ? ('premium' as SubscriptionTier) : ('free' as SubscriptionTier),
     };
   }, [customerInfo, isMockPremium]);
@@ -150,6 +155,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       value={{
         isPremium,
         hasAccess,
+        isLifetime,
         tier,
         customerInfo,
         isLoading,

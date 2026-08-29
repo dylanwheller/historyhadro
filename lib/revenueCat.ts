@@ -113,8 +113,14 @@ export async function resetUser(): Promise<void> {
 // ─── Entitlement helpers ──────────────────────────────────────────────────────
 
 export function hasPremiumEntitlement(info: CustomerInfo): boolean {
-  // Primary check: RevenueCat entitlement marked active (requires correct dashboard config)
-  if (info.entitlements.active[ENTITLEMENT_PREMIUM]) return true;
+  // Check entitlement is active AND was granted by this app's individual product or the
+  // shared lifetime product. Without this product check, buying any one app's individual
+  // product grants the shared "premium" entitlement to every app in the RC project.
+  const activeEntitlement = info.entitlements.active[ENTITLEMENT_PREMIUM];
+  if (activeEntitlement) {
+    const grantedBy = activeEntitlement.productIdentifier;
+    if (grantedBy === PRODUCT_IDS.individual || grantedBy === PRODUCT_IDS.lifetime) return true;
+  }
 
   // Fallback: check raw transaction history for either individual OR lifetime product.
   const hasTransaction = info.nonSubscriptionTransactions?.some(
@@ -126,6 +132,16 @@ export function hasPremiumEntitlement(info: CustomerInfo): boolean {
   // one-time purchases, regardless of entitlement assignment.
   return (info.allPurchasedProductIdentifiers?.includes(PRODUCT_IDS.lifetime) ?? false)
       || (info.allPurchasedProductIdentifiers?.includes(PRODUCT_IDS.individual) ?? false);
+}
+
+export function hasLifetimePurchase(info: CustomerInfo): boolean {
+  const activeEntitlement = info.entitlements.active[ENTITLEMENT_PREMIUM];
+  if (activeEntitlement?.productIdentifier === PRODUCT_IDS.lifetime) return true;
+  const hasTransaction = info.nonSubscriptionTransactions?.some(
+    (t) => t.productIdentifier === PRODUCT_IDS.lifetime,
+  ) ?? false;
+  if (hasTransaction) return true;
+  return info.allPurchasedProductIdentifiers?.includes(PRODUCT_IDS.lifetime) ?? false;
 }
 
 export type SubscriptionTier = 'free' | 'premium';
