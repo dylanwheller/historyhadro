@@ -52,6 +52,43 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:484276241658:android:1e35de32a7831d9ac9f543",
+        "android_client_info": {
+          "package_name": "com.smartypants.compscicarno"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484276241658-aiqhog3kp94rsdhp198c0mesbml2kh16.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.compscicarno",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSrloduAGXDKRNSpX6hy3kiQM3NbPIGmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:484276241658:android:3fc398007a1725fcc9f543",
         "android_client_info": {
           "package_name": "com.smartypants.geogiganto"
@@ -95,6 +132,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "484276241658-qfd4cdudm1hgsmid30sdlm2pkavmfqj2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.historyhadro",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
         {
           "client_id": "484276241658-c4guf8kn8d4ed852i62ug1mfi8bt1dj7.apps.googleusercontent.com",
           "client_type": 3

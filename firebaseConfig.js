@@ -6,7 +6,7 @@ const firebaseConfig = {
   projectId: 'smarty-pants-35ef5',
   storageBucket: 'smarty-pants-35ef5.firebasestorage.app',
   messagingSenderId: '484276241658',
-  appId: '1:484276241658:android:2bdeb88ab326b18dc9f543',
+  appId: '1:484276241658:android:cdb2277ff82d78cdc9f543',
   measurementId: 'G-41JX2ZG0RX',
 };
 
