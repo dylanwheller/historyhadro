@@ -380,7 +380,7 @@ export default function HomeScreen() {
                         <Text className="text-primary-foreground text-lg font-bold">
                           {continueTarget.requiresUpgrade
                             ? 'Unlock Next World'
-                            : points > 0 ? 'Continue Learning' : 'Start Learning'}
+                            : points > 0 ? 'Continue Playing' : 'Start Playing'}
                         </Text>
                       </View>
                       <ChevronRight size={24} color="#1c1917" />
