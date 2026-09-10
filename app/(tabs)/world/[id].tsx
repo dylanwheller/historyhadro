@@ -3,9 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Star } from 'lucide-react-native';
 import { useGame } from '@/lib/GameContext';
 import { useUser } from '@/lib/UserContext';
+import { useSubscription } from '@/lib/SubscriptionContext';
 import { WORLDS } from '@/data/worlds';
+import PaywallScreen from '@/components/screens/PaywallScreen';
+
+/** First N levels of World 1 are free for everyone; the rest require premium. */
+const FREE_LEVELS = 3;
 
 function StarRow({ stars }: { stars: number }) {
   return (
@@ -24,12 +30,20 @@ function StarRow({ stars }: { stars: number }) {
 }
 
 export default function WorldScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, paywall: paywallParam } = useLocalSearchParams<{ id: string; paywall?: string }>();
   const worldId = parseInt(id ?? '1', 10);
   const router = useRouter();
   const { game } = useGame();
   const worldProgress = game.worldProgress;
   const { user, setAgeRange } = useUser();
+  const { hasAccess } = useSubscription();
+  const [paywallOpen, setPaywallOpen] = useState(false);
+
+  // Arriving here with ?paywall=1 (e.g. bounced back after hitting a premium
+  // level mid-session) should surface the paywall immediately.
+  useEffect(() => {
+    if (paywallParam === '1') setPaywallOpen(true);
+  }, [paywallParam]);
 
   const world = useMemo(() => WORLDS.find((w) => w.id === worldId), [worldId]);
   const wp = worldProgress[worldId];
@@ -68,10 +82,14 @@ export default function WorldScreen() {
     return levelStars(levelId - 1) > 0;
   };
 
+  const premiumLocked = (levelId: number): boolean =>
+    worldId === 1 && levelId > FREE_LEVELS && !hasAccess;
+
   const allLevelsComplete = [1, 2, 3, 4, 5].every((l) => levelStars(l) > 0);
   const bossDefeated = wp?.bossDefeated ?? false;
 
   const handleLevel = (levelId: number) => {
+    if (premiumLocked(levelId)) { setPaywallOpen(true); return; }
     if (!levelUnlocked(levelId)) return;
     router.push(`/level/${worldId}/${levelId}`);
   };
@@ -128,34 +146,41 @@ export default function WorldScreen() {
           <Text className="text-lg font-bold text-foreground mb-3">Levels</Text>
           <View className="gap-3">
             {[1, 2, 3, 4, 5].map((levelId) => {
-              const unlocked = levelUnlocked(levelId);
+              const locked = premiumLocked(levelId);
+              const unlocked = !locked && levelUnlocked(levelId);
               const stars = levelStars(levelId);
               return (
                 <TouchableOpacity
                   key={levelId}
                   onPress={() => handleLevel(levelId)}
-                  activeOpacity={unlocked ? 0.7 : 1}
+                  activeOpacity={unlocked || locked ? 0.7 : 1}
                   className="bg-card border border-border rounded-2xl p-4 flex-row items-center"
-                  style={unlocked ? undefined : { opacity: 0.45 }}
+                  style={unlocked || locked ? undefined : { opacity: 0.45 }}
                 >
                   <View
                     className="w-10 h-10 rounded-full items-center justify-center mr-4"
                     style={{ backgroundColor: world.accentColor + '33' }}
                   >
                     <Text className="font-bold" style={{ color: world.accentColor }}>
-                      {unlocked ? String(levelId) : '🔒'}
+                      {unlocked ? String(levelId) : locked ? '⭐' : '🔒'}
                     </Text>
                   </View>
                   <View className="flex-1">
                     <Text className="font-semibold text-foreground">Level {levelId}</Text>
-                    {stars > 0 && <StarRow stars={stars} />}
-                    {stars === 0 && unlocked && resumeProgress[levelId] ? (
+                    {locked ? (
+                      <View className="bg-primary self-start px-2 py-0.5 rounded-full flex-row items-center gap-1 mt-0.5">
+                        <Star size={10} color="#fff" fill="#fff" />
+                        <Text className="text-white text-xs font-bold">Premium</Text>
+                      </View>
+                    ) : stars > 0 ? (
+                      <StarRow stars={stars} />
+                    ) : unlocked && resumeProgress[levelId] ? (
                       <Text className="text-xs text-amber-500">
                         {resumeProgress[levelId]} of 10 answered
                       </Text>
-                    ) : stars === 0 && unlocked && wp?.levels[String(levelId)] ? (
+                    ) : unlocked && wp?.levels[String(levelId)] ? (
                       <Text className="text-xs text-amber-500">Need 6+ correct to pass</Text>
-                    ) : stars === 0 && unlocked ? (
+                    ) : unlocked ? (
                       <Text className="text-xs text-muted-foreground">Not started</Text>
                     ) : null}
                   </View>
@@ -185,6 +210,8 @@ export default function WorldScreen() {
                   ? 'Defeated!'
                   : allLevelsComplete
                   ? 'Ready to challenge'
+                  : worldId === 1 && !hasAccess
+                  ? 'Unlock premium levels to challenge'
                   : 'Complete all levels to unlock'}
               </Text>
             </View>
@@ -192,6 +219,9 @@ export default function WorldScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      {paywallOpen && (
+        <PaywallScreen modal onClose={() => setPaywallOpen(false)} />
+      )}
     </SafeAreaView>
   );
 }

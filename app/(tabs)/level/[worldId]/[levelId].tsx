@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGame } from '@/lib/GameContext';
 import { useUser } from '@/lib/UserContext';
+import { useSubscription } from '@/lib/SubscriptionContext';
 import { WORLDS } from '@/data/worlds';
 import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
@@ -107,6 +108,9 @@ function OptionButton({
 
 type Phase = 'playing' | 'answered' | 'complete' | 'gameover';
 
+/** First N levels of World 1 are free for everyone; the rest require premium. */
+const FREE_LEVELS = 3;
+
 export default function LevelScreen() {
   const { worldId: wParam, levelId: lParam } = useLocalSearchParams<{
     worldId: string;
@@ -119,6 +123,7 @@ export default function LevelScreen() {
   const { user } = useUser();
   const ageRange = user.ageRange;
   const { answerQuestion, completeLevel, loseLife, startLevel, savePartialSession } = useGame();
+  const { hasAccess } = useSubscription();
   const { bottom: bottomInset } = useSafeAreaInsets();
 
   const world = useMemo(() => WORLDS.find((w) => w.id === worldId)!, [worldId]);
@@ -385,7 +390,9 @@ export default function LevelScreen() {
   // the world detail screen only after the last level.
   const handleComplete = useCallback(() => {
     const stars = starsForScore(correct);
-    if (stars > 0 && levelId < world.levels) {
+    const nextLevelPremiumLocked =
+      worldId === 1 && (levelId + 1) > FREE_LEVELS && !hasAccess;
+    if (stars > 0 && levelId < world.levels && !nextLevelPremiumLocked) {
       levelSavedRef.current = false;
       setLevelId((l) => l + 1);
       setQIndex(0);
@@ -399,10 +406,12 @@ export default function LevelScreen() {
       setEliminatedIndices([]);
       setAwaitingNext(false);
       setRestartKey((k) => k + 1);
+    } else if (nextLevelPremiumLocked) {
+      router.replace(`/(tabs)/world/${worldId}?paywall=1` as any);
     } else {
       router.replace(`/(tabs)/world/${worldId}` as any);
     }
-  }, [router, worldId, levelId, world.levels, correct]);
+  }, [router, worldId, levelId, world.levels, correct, hasAccess]);
 
   const handleRetry = useCallback(async () => {
     // Await the removal so the useEffect([restartKey]) read never races the delete.
@@ -506,7 +515,9 @@ export default function LevelScreen() {
           className="bg-primary rounded-2xl px-8 py-3 mb-3 w-full items-center"
         >
           <Text className="text-primary-foreground font-bold text-lg">
-            {stars > 0 && levelId < world.levels ? `Next: Level ${levelId + 1} →` : 'Back to World'}
+            {worldId === 1 && (levelId + 1) > FREE_LEVELS && !hasAccess
+              ? 'Unlock to Continue'
+              : stars > 0 && levelId < world.levels ? `Next: Level ${levelId + 1} →` : 'Back to World'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRetry} className="py-2">

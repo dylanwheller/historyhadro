@@ -16,7 +16,7 @@ import Animated, {
   FadeInDown,
   FadeInUp,
 } from 'react-native-reanimated';
-import { Zap, Target, Flame, TrendingUp, ChevronRight, Play, Sparkles, Sword } from 'lucide-react-native';
+import { Zap, Target, Flame, TrendingUp, ChevronRight, Play, Sparkles, Sword, Star } from 'lucide-react-native';
 import { cssInterop } from 'nativewind';
 import { useAuth } from '@/lib/AuthContext';
 import { useUser } from '@/lib/UserContext';
@@ -40,6 +40,10 @@ cssInterop(ChevronRight,{ className: { target: 'style', nativeStyleToProp: { col
 cssInterop(Play,        { className: { target: 'style', nativeStyleToProp: { color: true } } });
 cssInterop(Sparkles,    { className: { target: 'style', nativeStyleToProp: { color: true } } });
 cssInterop(Sword,       { className: { target: 'style', nativeStyleToProp: { color: true } } });
+cssInterop(Star,        { className: { target: 'style', nativeStyleToProp: { color: true } } });
+
+/** First N levels of World 1 are free for everyone; the rest require premium. */
+const FREE_LEVELS = 3;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DailyCardState = { done: false } | { done: true; correct: number; pts: number };
@@ -149,13 +153,13 @@ export default function HomeScreen() {
         (k) => (levels[k]?.stars ?? 0) > 0,
       ).length;
       if (starredCount < world.levels) {
-        const requiresUpgrade = world.id > 1 && !hasAccess;
         let nextLevel = 1;
         for (let l = 1; l <= world.levels; l++) {
           if ((levels[String(l)]?.stars ?? 0) > 0) nextLevel = l + 1;
           else break;
         }
         const levelId = Math.min(nextLevel, world.levels);
+        const requiresUpgrade = !hasAccess && (world.id > 1 || levelId > FREE_LEVELS);
         const levelsCompleted = wp?.levelsCompleted ?? 0;
         return {
           world,
@@ -379,7 +383,7 @@ export default function HomeScreen() {
                         </View>
                         <Text className="text-primary-foreground text-lg font-bold">
                           {continueTarget.requiresUpgrade
-                            ? 'Unlock Next World'
+                            ? 'Unlock to Continue'
                             : points > 0 ? 'Continue Playing' : 'Start Playing'}
                         </Text>
                       </View>
@@ -461,9 +465,14 @@ export default function HomeScreen() {
               <View className="bg-primary/10 px-4 py-3 flex-row items-center gap-2">
                 <Sparkles size={20} color="#a855f7" />
                 <Text className="text-primary font-bold">Daily History Challenge</Text>
-                <View className="ml-auto bg-primary/20 px-2 py-0.5 rounded-full">
-                  <Text className="text-primary text-xs font-bold">
-                    {dailyCard.done ? '✓ DONE' : 'TODAY'}
+                <View
+                  className={`ml-auto px-2 py-0.5 rounded-full flex-row items-center gap-1 ${
+                    !hasAccess && !dailyCard.done ? 'bg-primary' : 'bg-primary/20'
+                  }`}
+                >
+                  {!hasAccess && !dailyCard.done && <Star size={10} color="#fff" fill="#fff" />}
+                  <Text className={`text-xs font-bold ${!hasAccess && !dailyCard.done ? 'text-white' : 'text-primary'}`}>
+                    {dailyCard.done ? '✓ DONE' : !hasAccess ? 'PREMIUM' : 'TODAY'}
                   </Text>
                 </View>
               </View>
@@ -484,7 +493,10 @@ export default function HomeScreen() {
               ) : (
                 /* Play state */
                 <TouchableOpacity
-                  onPress={() => router.push('/daily-challenge' as any)}
+                  onPress={() => {
+                    if (!hasAccess) { setPaywallOpen(true); return; }
+                    router.push('/daily-challenge' as any);
+                  }}
                   activeOpacity={0.85}
                 >
                   <View className="p-4">
@@ -495,7 +507,9 @@ export default function HomeScreen() {
                       Ancient Civilisations · Middle Ages · Exploration · Modern World
                     </Text>
                     <View className="bg-primary rounded-xl py-2.5 items-center">
-                      <Text className="text-primary-foreground font-bold">Play Now →</Text>
+                      <Text className="text-primary-foreground font-bold">
+                        {hasAccess ? 'Play Now →' : 'Unlock to Play →'}
+                      </Text>
                     </View>
                   </View>
                 </TouchableOpacity>
