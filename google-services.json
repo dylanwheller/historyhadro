@@ -59,19 +59,27 @@
       },
       "oauth_client": [
         {
-          "client_id": "484276241658-aiqhog3kp94rsdhp198c0mesbml2kh16.apps.googleusercontent.com",
+          "client_id": "484276241658-1hld3d9d8tn5ludodhqvr0iovvt806lb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.compscicarno",
+            "certificate_hash": "2bca8db235edeb00743049c3854c05d85e575067"
+          }
+        },
+        {
+          "client_id": "484276241658-l4t90mv2b0ckrereh5sjd1pbm5kir4d7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.compscicarno",
+            "certificate_hash": "69d3913e7f71bea7ef4bf4d6b588880380689779"
+          }
+        },
+        {
+          "client_id": "484276241658-qs0sinbuv7nn2m7m0d4bc8qf6cj2vkba.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.smartypants.compscicarno",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
-          "client_id": "484276241658-e26uaqolq3n5ogovsjveolc091q51l63.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.smartypants.compscicarno",
-            "certificate_hash": "68de74a135543c8c16987a88bad86a41eafc858a"
           }
         },
         {
@@ -104,11 +112,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "484276241658-78b710efms2grdmqni6omom94mrrhvho.apps.googleusercontent.com",
+          "client_id": "484276241658-22hvo7fk8vpb7rr2nvh0ca52kosk2og6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.smartypants.geogiganto",
-            "certificate_hash": "3f675fe6d2bde8b7b34fa46f4d8e994628b8dc81"
+            "certificate_hash": "fad1cbc09b15db3ab46c965047c685a73c356738"
+          }
+        },
+        {
+          "client_id": "484276241658-4j289tjcas9it9dvhpogdc2qef54gia0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.geogiganto",
+            "certificate_hash": "b221072ebe12817efb97517c428129d1fe96ebe8"
           }
         },
         {
@@ -149,11 +165,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "484276241658-drm4cligut1nm6p7c1gdl376s82931pn.apps.googleusercontent.com",
+          "client_id": "484276241658-6v44o4j8psk60lqpsi3p17us73d7tcbg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.smartypants.historyhadro",
-            "certificate_hash": "c1e8f36bc57be1707f4f09e41982431452f6b084"
+            "certificate_hash": "729b1d1f1a9d1399cc0f31f373ff4b3e5807502d"
+          }
+        },
+        {
+          "client_id": "484276241658-jluk2eb3mdofgrcc1u53bm8vaki5mnf5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartypants.historyhadro",
+            "certificate_hash": "1261fb292f6581d9a12b883776b5d5e5a0fcf3c4"
           }
         },
         {
