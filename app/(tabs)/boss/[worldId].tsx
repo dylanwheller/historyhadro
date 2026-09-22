@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGame } from '@/lib/GameContext';
+import { useSubscription } from '@/lib/SubscriptionContext';
 import { WORLDS } from '@/data/worlds';
 import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
@@ -132,7 +133,19 @@ export default function BossScreen() {
   const { worldId: wParam } = useLocalSearchParams<{ worldId: string }>();
   const worldId = parseInt(wParam ?? '1', 10);
   const router  = useRouter();
-  const { startBoss, answerQuestion, completeBoss } = useGame();
+  const { game, startBoss, answerQuestion, completeBoss } = useGame();
+  const { hasAccess, isLoading: subscriptionLoading } = useSubscription();
+
+  // The first boss battle is where the paywall starts. Bounce free players who
+  // land here without going through the (gated) buttons, e.g. via a deep link.
+  const bossGateChecked = useRef(false);
+  useEffect(() => {
+    if (bossGateChecked.current || subscriptionLoading) return;
+    bossGateChecked.current = true;
+    if (!hasAccess && !(game.worldProgress[worldId]?.bossDefeated ?? false)) {
+      router.replace(`/(tabs)/world/${worldId}?paywall=1` as any);
+    }
+  }, [subscriptionLoading, hasAccess, game.worldProgress, worldId, router]);
   const { bottom: bottomInset } = useSafeAreaInsets();
 
   const world  = useMemo(() => WORLDS.find((w) => w.id === worldId)!, [worldId]);

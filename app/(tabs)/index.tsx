@@ -42,9 +42,6 @@ cssInterop(Sparkles,    { className: { target: 'style', nativeStyleToProp: { col
 cssInterop(Sword,       { className: { target: 'style', nativeStyleToProp: { color: true } } });
 cssInterop(Star,        { className: { target: 'style', nativeStyleToProp: { color: true } } });
 
-/** First N levels of World 1 are free for everyone; the rest require premium. */
-const FREE_LEVELS = 3;
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 type DailyCardState = { done: false } | { done: true; correct: number; pts: number };
 
@@ -159,7 +156,7 @@ export default function HomeScreen() {
           else break;
         }
         const levelId = Math.min(nextLevel, world.levels);
-        const requiresUpgrade = !hasAccess && (world.id > 1 || levelId > FREE_LEVELS);
+        const requiresUpgrade = !hasAccess && world.id > 1;
         const levelsCompleted = wp?.levelsCompleted ?? 0;
         return {
           world,
@@ -383,7 +380,7 @@ export default function HomeScreen() {
                         </View>
                         <Text className="text-primary-foreground text-lg font-bold">
                           {continueTarget.requiresUpgrade
-                            ? 'Unlock to Continue'
+                            ? 'Unlock Next World'
                             : points > 0 ? 'Continue Playing' : 'Start Playing'}
                         </Text>
                       </View>
@@ -430,7 +427,10 @@ export default function HomeScreen() {
           <View className="px-6 mb-6">
             <Animated.View style={pulseStyle} entering={FadeInDown.duration(600).delay(200)}>
               <TouchableOpacity
-                onPress={() => router.push(`/boss/${bossBattleWorld.id}` as any)}
+                onPress={() => {
+                  if (!hasAccess) { setPaywallOpen(true); return; }
+                  router.push(`/boss/${bossBattleWorld.id}` as any);
+                }}
                 activeOpacity={0.9}
                 className="bg-muted rounded-2xl p-5 shadow-lg border border-primary/50"
               >
@@ -448,8 +448,11 @@ export default function HomeScreen() {
                     <Flame size={16} color="#fff" />
                     <Text className="text-white text-sm">+200 XP Bonus</Text>
                   </View>
-                  <View className="bg-white/20 px-3 py-1 rounded-full">
-                    <Text className="text-white text-xs font-bold">FIGHT NOW</Text>
+                  <View className="bg-white/20 px-3 py-1 rounded-full flex-row items-center gap-1">
+                    {!hasAccess && <Star size={10} color="#fff" fill="#fff" />}
+                    <Text className="text-white text-xs font-bold">
+                      {hasAccess ? 'FIGHT NOW' : 'UNLOCK TO FIGHT'}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -465,14 +468,9 @@ export default function HomeScreen() {
               <View className="bg-primary/10 px-4 py-3 flex-row items-center gap-2">
                 <Sparkles size={20} color="#a855f7" />
                 <Text className="text-primary font-bold">Daily History Challenge</Text>
-                <View
-                  className={`ml-auto px-2 py-0.5 rounded-full flex-row items-center gap-1 ${
-                    !hasAccess && !dailyCard.done ? 'bg-primary' : 'bg-primary/20'
-                  }`}
-                >
-                  {!hasAccess && !dailyCard.done && <Star size={10} color="#fff" fill="#fff" />}
-                  <Text className={`text-xs font-bold ${!hasAccess && !dailyCard.done ? 'text-white' : 'text-primary'}`}>
-                    {dailyCard.done ? '✓ DONE' : !hasAccess ? 'PREMIUM' : 'TODAY'}
+                <View className="ml-auto bg-primary/20 px-2 py-0.5 rounded-full">
+                  <Text className="text-primary text-xs font-bold">
+                    {dailyCard.done ? '✓ DONE' : 'TODAY'}
                   </Text>
                 </View>
               </View>
@@ -493,10 +491,7 @@ export default function HomeScreen() {
               ) : (
                 /* Play state */
                 <TouchableOpacity
-                  onPress={() => {
-                    if (!hasAccess) { setPaywallOpen(true); return; }
-                    router.push('/daily-challenge' as any);
-                  }}
+                  onPress={() => router.push('/daily-challenge' as any)}
                   activeOpacity={0.85}
                 >
                   <View className="p-4">
@@ -507,9 +502,7 @@ export default function HomeScreen() {
                       Ancient Civilisations · Middle Ages · Exploration · Modern World
                     </Text>
                     <View className="bg-primary rounded-xl py-2.5 items-center">
-                      <Text className="text-primary-foreground font-bold">
-                        {hasAccess ? 'Play Now →' : 'Unlock to Play →'}
-                      </Text>
+                      <Text className="text-primary-foreground font-bold">Play Now →</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
