@@ -20,6 +20,12 @@ import { useAuth } from '@/lib/AuthContext';
 import { useUser } from '@/lib/UserContext';
 import { updateDailyStat } from '@/lib/firebase';
 import { soundManager } from '@/lib/sounds';
+import ConfettiBurst from '@/components/game/ConfettiBurst';
+import MascotReaction from '@/components/game/MascotReaction';
+import StarReveal from '@/components/game/StarReveal';
+import { reactionFor } from '@/lib/reactions';
+import type { Mood } from '@/lib/reactions';
+import { getAvatarSource } from '@/lib/avatars';
 import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
 
@@ -87,6 +93,7 @@ export default function DailyChallengeScreen() {
   const { user: authUser } = useAuth();
   const { user, addPoints } = useUser();
   const ageRange           = user.ageRange ?? 'junior';
+  const avatarSource       = getAvatarSource(user.avatarId);
 
   const [phase,        setPhase]        = useState<Phase>('playing');
   const [questions]                      = useState<Question[]>(() => generateDailyQuestions(ageRange));
@@ -96,6 +103,9 @@ export default function DailyChallengeScreen() {
   const [timeLeft,     setTimeLeft]     = useState(TIME_LIMIT);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [muted, setMuted] = useState(false);
+  const [reaction, setReaction] = useState<{ mood: Mood; key: number }>({ mood: 'idle', key: 0 });
+  const [burst, setBurst] = useState({ key: 0, count: 16 });
+  const streakRef = useRef(0);
 
   useEffect(() => {
     soundManager.setSessionMuted(false);
@@ -167,6 +177,7 @@ export default function DailyChallengeScreen() {
     }
 
     soundManager.play('dailyChallengeComplete');
+    if (correct >= 3) setBurst((b) => ({ key: b.key + 1, count: 70 }));
     setPhase('results');
   }, [addPoints, authUser?.uid]);
 
@@ -201,6 +212,10 @@ export default function DailyChallengeScreen() {
 
     setFeedback(isCorrect ? 'correct' : 'incorrect');
     soundManager.play(isCorrect ? 'correct' : 'incorrect');
+    streakRef.current = isCorrect ? streakRef.current + 1 : 0;
+    const r = reactionFor(isCorrect, streakRef.current);
+    setReaction((prev) => ({ mood: r.mood, key: prev.key + 1 }));
+    if (r.confetti > 0) setBurst((b) => ({ key: b.key + 1, count: r.confetti }));
 
     if (isCorrect) {
       correctRef.current += 1;
@@ -264,11 +279,9 @@ export default function DailyChallengeScreen() {
     return (
       <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={{ flex: 1 }}>
         <SafeAreaView className="flex-1 items-center justify-center px-8 gap-5">
-          <View className="flex-row gap-3 mb-2">
-            {[1, 2, 3].map(i => (
-              <Star key={i} size={40} color={i <= stars ? '#F5A623' : '#334155'} fill={i <= stars ? '#F5A623' : 'none'} />
-            ))}
-          </View>
+          <ConfettiBurst burstKey={burst.key} count={burst.count} />
+          <MascotReaction source={avatarSource} mood={stars > 0 ? 'celebrate' : 'sad'} moodKey={1} size={110} />
+          <StarReveal stars={stars} />
           <Text className="text-3xl font-black text-white text-center">
             {correctCount >= 8 ? 'Brilliant! 🎉' : correctCount >= 5 ? 'Good effort! 💪' : 'Keep exploring! 🔭'}
           </Text>
@@ -315,6 +328,7 @@ export default function DailyChallengeScreen() {
   return (
     <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={{ flex: 1 }}>
       <SafeAreaView className="flex-1">
+        <ConfettiBurst burstKey={burst.key} count={burst.count} />
 
         {/* Header */}
         <View className="px-5 pt-2 pb-3">
@@ -415,6 +429,7 @@ export default function DailyChallengeScreen() {
             <CheckCircle size={16} color="#7ED321" />
             <Text className="text-purple-200 text-sm">{correctCount} correct</Text>
           </View>
+          <MascotReaction source={avatarSource} mood={reaction.mood} moodKey={reaction.key} size={48} />
           <View className="flex-row items-center gap-1.5">
             <Zap size={16} color="#fbbf24" />
             <Text className="text-purple-200 text-sm">{correctCount * POINTS_PER_CORRECT} pts</Text>

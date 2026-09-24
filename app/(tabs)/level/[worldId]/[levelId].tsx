@@ -10,6 +10,13 @@ import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
 import PauseMenu from '@/components/PauseMenu';
 import { soundManager } from '@/lib/sounds';
+import ReAnimated, { ZoomIn } from 'react-native-reanimated';
+import ConfettiBurst from '@/components/game/ConfettiBurst';
+import MascotReaction from '@/components/game/MascotReaction';
+import StarReveal from '@/components/game/StarReveal';
+import { reactionFor } from '@/lib/reactions';
+import { getAvatarSource } from '@/lib/avatars';
+import type { Mood } from '@/lib/reactions';
 
 // ─── Seeded PRNG (mulberry32) ─────────────────────────────────────────────────
 // Deterministic shuffle keyed to world+level+restartKey: the question order
@@ -118,6 +125,7 @@ export default function LevelScreen() {
   const router = useRouter();
   const { user } = useUser();
   const ageRange = user.ageRange;
+  const avatarSource = getAvatarSource(user.avatarId);
   const { answerQuestion, completeLevel, loseLife, startLevel, savePartialSession } = useGame();
   const { bottom: bottomInset } = useSafeAreaInsets();
 
@@ -132,6 +140,12 @@ export default function LevelScreen() {
   const [chosen,      setChosen]      = useState<number | null>(null);
   const [isPaused,    setIsPaused]    = useState(false);
   const [muted, setMuted] = useState(false);
+  const [reaction, setReaction] = useState<{ mood: Mood; key: number; message: string }>({
+    mood: 'idle',
+    key: 0,
+    message: '',
+  });
+  const [burst, setBurst] = useState({ key: 0, count: 16 });
 
   useEffect(() => {
     soundManager.setSessionMuted(false);
@@ -239,6 +253,7 @@ export default function LevelScreen() {
     if (phase === 'complete' && !levelSavedRef.current) {
       levelSavedRef.current = true;
       soundManager.play('levelComplete');
+      if (starsForScore(correct) > 0) setBurst((b) => ({ key: b.key + 1, count: 70 }));
       // Clear resume snapshot — level is done, no point resuming from here.
       AsyncStorage.removeItem(progressKey(worldId, levelId)).catch(() => {});
       completeLevel().catch((err) =>
@@ -323,6 +338,9 @@ export default function LevelScreen() {
       // Call GameContext
       answerQuestion(isCorrect);
       soundManager.play(isCorrect ? 'correct' : 'incorrect');
+      const r = reactionFor(isCorrect, newStreak);
+      setReaction((prev) => ({ mood: r.mood, key: prev.key + 1, message: r.message }));
+      if (r.confetti > 0) setBurst((b) => ({ key: b.key + 1, count: r.confetti }));
 
       if (!isCorrect) {
         shake();
@@ -492,13 +510,12 @@ export default function LevelScreen() {
     const bonus = 50 + (correct === 10 ? 100 : 0);
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
-        <Text className="text-6xl mb-4">{stars === 3 ? '🏆' : stars >= 1 ? '⭐' : '😢'}</Text>
-        <Text className="text-2xl font-bold text-foreground mb-2">{correct}/10 correct</Text>
-        <View className="flex-row gap-1 mb-4">
-          {[1, 2, 3].map((s) => (
-            <Text key={s} className="text-3xl" style={{ color: '#FCD34D', opacity: stars >= s ? 1 : 0.25 }}>★</Text>
-          ))}
+        <ConfettiBurst burstKey={burst.key} count={burst.count} />
+        <View className="mb-2">
+          <MascotReaction source={avatarSource} mood={stars > 0 ? 'celebrate' : 'sad'} moodKey={1} size={132} />
         </View>
+        <Text className="text-2xl font-bold text-foreground mb-2">{correct}/10 correct</Text>
+        <StarReveal stars={stars} />
         <Text className="text-muted-foreground mb-2">+{points} pts (questions)</Text>
         <Text className="text-muted-foreground mb-6">+{bonus} pts (completion bonus)</Text>
         <TouchableOpacity
@@ -520,7 +537,9 @@ export default function LevelScreen() {
   if (phase === 'gameover') {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-6">
-        <Text className="text-6xl mb-4">💀</Text>
+        <View className="mb-4">
+          <MascotReaction source={avatarSource} mood="sad" moodKey={1} size={120} />
+        </View>
         <Text className="text-2xl font-bold text-foreground mb-2">Out of lives!</Text>
         <Text className="text-muted-foreground mb-6">{correct} correct before game over</Text>
         <TouchableOpacity
@@ -574,6 +593,16 @@ export default function LevelScreen() {
           />
         </View>
 
+        {/* Mascot reacts to each answer */}
+        <View className="px-4 pt-3" style={{ minHeight: 76 }}>
+          <MascotReaction
+            source={avatarSource}
+            mood={reaction.mood}
+            moodKey={reaction.key}
+            message={phase === 'answered' ? reaction.message : undefined}
+          />
+        </View>
+
         {/* Question + Options — animated together so options never show without their question */}
         <Animated.View
           style={{ opacity: fadeAnim, transform: [{ translateX: shakeAnim }] }}
@@ -621,12 +650,18 @@ export default function LevelScreen() {
 
         {/* Streak badge */}
         {streak >= 3 && phase === 'playing' && (
-          <View className="mx-4 mt-4 bg-yellow-500/20 border border-yellow-400 rounded-xl p-3 flex-row items-center gap-2">
+          <ReAnimated.View
+            key={streak}
+            entering={ZoomIn.duration(220)}
+            className="mx-4 mt-4 bg-yellow-500/20 border border-yellow-400 rounded-xl p-3 flex-row items-center gap-2"
+          >
             <Text>🔥</Text>
             <Text className="text-yellow-400 font-semibold">{streak} streak! +5 bonus</Text>
-          </View>
+          </ReAnimated.View>
         )}
       </ScrollView>
+
+      <ConfettiBurst burstKey={burst.key} count={burst.count} />
 
       {/* ── Bottom action bar ── */}
       <View

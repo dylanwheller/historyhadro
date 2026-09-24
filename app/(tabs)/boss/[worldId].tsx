@@ -11,6 +11,12 @@ import { ALL_QUESTIONS } from '@/data/questions';
 import type { Question } from '@/data/worlds';
 import PauseMenu from '@/components/PauseMenu';
 import { soundManager } from '@/lib/sounds';
+import ConfettiBurst from '@/components/game/ConfettiBurst';
+import MascotReaction from '@/components/game/MascotReaction';
+import { reactionFor } from '@/lib/reactions';
+import type { Mood } from '@/lib/reactions';
+import { useUser } from '@/lib/UserContext';
+import { getAvatarSource } from '@/lib/avatars';
 
 const EXPLAIN_PREF_KEY = '@historyhadro_explain_pref';
 
@@ -147,6 +153,8 @@ export default function BossScreen() {
     }
   }, [subscriptionLoading, hasAccess, game.worldProgress, worldId, router]);
   const { bottom: bottomInset } = useSafeAreaInsets();
+  const { user } = useUser();
+  const avatarSource = getAvatarSource(user.avatarId);
 
   const world  = useMemo(() => WORLDS.find((w) => w.id === worldId)!, [worldId]);
   const config = useMemo(() => BOSS_CONFIG[worldId] ?? DEFAULT_CONFIG, [worldId]);
@@ -161,6 +169,8 @@ export default function BossScreen() {
   const [bossMsg,     setBossMsg]     = useState('');
   const [isPaused,    setIsPaused]    = useState(false);
   const [muted, setMuted] = useState(false);
+  const [reaction, setReaction] = useState<{ mood: Mood; key: number }>({ mood: 'idle', key: 0 });
+  const [burst, setBurst] = useState({ key: 0, count: 16 });
 
   useEffect(() => {
     soundManager.setSessionMuted(false);
@@ -329,6 +339,9 @@ export default function BossScreen() {
       setPoints((p) => Math.max(0, p + (isCorrect ? 10 : -20)));
       answerQuestion(isCorrect);
       soundManager.play(isCorrect ? 'correct' : 'incorrect');
+      const r = reactionFor(isCorrect, 0);
+      setReaction((prev) => ({ mood: r.mood, key: prev.key + 1 }));
+      if (r.confetti > 0) setBurst((b) => ({ key: b.key + 1, count: r.confetti }));
 
       if (isCorrect) {
         triggerGreenFlash();
@@ -399,6 +412,11 @@ export default function BossScreen() {
 
   const playerWon = correct >= effectiveThreshold(questions.length);
 
+  useEffect(() => {
+    if (phase === 'complete' && playerWon) setBurst((b) => ({ key: b.key + 1, count: 70 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   const handleFinish = useCallback(async () => {
     if (playerWon) {
       soundManager.play('bossDefeated');
@@ -442,8 +460,11 @@ export default function BossScreen() {
     return (
       <LinearGradient colors={config.bgColors} style={{ flex: 1 }}>
         <SafeAreaView className="flex-1 items-center justify-center px-6">
+          <ConfettiBurst burstKey={burst.key} count={burst.count} />
           <Text style={{ fontSize: 80, marginBottom: 8 }}>{world.icon}</Text>
-          <Text style={{ fontSize: 48, marginBottom: 8 }}>{playerWon ? '🏆' : '💀'}</Text>
+          <View style={{ marginBottom: 8 }}>
+            <MascotReaction source={avatarSource} mood={playerWon ? 'celebrate' : 'sad'} moodKey={1} size={110} />
+          </View>
           <Text style={{ color: '#ffffff', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 }}>
             {playerWon ? config.victoryMessage : config.defeatMessage}
           </Text>
@@ -534,10 +555,13 @@ export default function BossScreen() {
             </Text>
 
             {/* Player lives */}
-            <View style={{ flexDirection: 'row', marginTop: 10, gap: 6 }}>
-              {Array.from({ length: MAX_LIVES }).map((_, i) => (
-                <Text key={i} style={{ fontSize: 22 }}>{i < lives ? '❤️' : '🖤'}</Text>
-              ))}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 12 }}>
+              <MascotReaction source={avatarSource} mood={reaction.mood} moodKey={reaction.key} size={56} />
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                {Array.from({ length: MAX_LIVES }).map((_, i) => (
+                  <Text key={i} style={{ fontSize: 22 }}>{i < lives ? '❤️' : '🖤'}</Text>
+                ))}
+              </View>
             </View>
           </View>
 
@@ -583,6 +607,8 @@ export default function BossScreen() {
           )}
 
         </ScrollView>
+
+        <ConfettiBurst burstKey={burst.key} count={burst.count} />
 
         {/* ── Bottom action bar ── */}
         <View
