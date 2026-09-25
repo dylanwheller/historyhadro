@@ -119,22 +119,25 @@ export default function WorldScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ paddingBottom: 128 }}>
-        {/* Header */}
+        {/* Header — kept compact so the map/list gets the screen */}
         <View
-          className="px-4 pt-4 pb-8 items-center"
+          className="px-4 pt-3 pb-3 flex-row items-center gap-3"
           style={{ backgroundColor: world.accentColor + '22' }}
         >
           {/* Back button — always returns to worlds list regardless of nav history */}
           <TouchableOpacity
             onPress={() => router.replace('/(tabs)/worlds')}
-            className="self-start mb-2 p-2 rounded-full bg-black/10"
+            className="w-10 h-10 rounded-full bg-black/10 items-center justify-center"
             activeOpacity={0.7}
+            accessibilityLabel="Back to worlds"
           >
-            <Text className="text-foreground text-lg">‹ Worlds</Text>
+            <Text className="text-foreground text-2xl" style={{ marginTop: -2 }}>‹</Text>
           </TouchableOpacity>
-          <Text className="text-5xl mb-2">{world.icon}</Text>
-          <Text className="text-2xl font-bold text-foreground text-center">{world.name}</Text>
-          <Text className="text-muted-foreground mt-1">{world.subject}</Text>
+          <Text className="text-3xl">{world.icon}</Text>
+          <View className="flex-1">
+            <Text className="text-xl font-bold text-foreground" numberOfLines={2}>{world.name}</Text>
+            <Text className="text-muted-foreground text-sm" numberOfLines={1}>{world.subject}</Text>
+          </View>
         </View>
 
         {/* Map / List toggle */}
