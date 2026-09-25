@@ -118,7 +118,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
       {/* Opaque overlay during tab pre-warm so the navigation is invisible.
           Deliberately plain — not splash-styled — to avoid a "double splash" feel. */}
       <Modal visible={isPrewarming} transparent={false} animationType="none" onRequestClose={() => {}}>
-        <View style={{ flex: 1, backgroundColor: '#030d1a', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 1, backgroundColor: '#1a1300', alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color="rgba(255,255,255,0.3)" />
         </View>
       </Modal>
