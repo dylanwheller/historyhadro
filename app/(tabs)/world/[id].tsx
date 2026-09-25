@@ -9,6 +9,10 @@ import { useUser } from '@/lib/UserContext';
 import { useSubscription } from '@/lib/SubscriptionContext';
 import { WORLDS } from '@/data/worlds';
 import PaywallScreen from '@/components/screens/PaywallScreen';
+import WorldMap from '@/components/game/WorldMap';
+import { getAvatarSource } from '@/lib/avatars';
+
+const VIEW_KEY = '@historyhadro_world_view';
 
 function StarRow({ stars }: { stars: number }) {
   return (
@@ -32,9 +36,20 @@ export default function WorldScreen() {
   const router = useRouter();
   const { game } = useGame();
   const worldProgress = game.worldProgress;
-  const { user, setAgeRange } = useUser();
+  const { user } = useUser();
   const { hasAccess } = useSubscription();
   const [paywallOpen, setPaywallOpen] = useState(false);
+  // Map is the default; the plain list stays available as a toggle.
+  const [view, setView] = useState<'map' | 'list'>('map');
+  useEffect(() => {
+    AsyncStorage.getItem(VIEW_KEY)
+      .then((v) => { if (v === 'list' || v === 'map') setView(v); })
+      .catch(() => {});
+  }, []);
+  const chooseView = (v: 'map' | 'list') => {
+    setView(v);
+    AsyncStorage.setItem(VIEW_KEY, v).catch(() => {});
+  };
 
   // Arriving here with ?paywall=1 (e.g. bounced back after hitting a premium
   // level mid-session) should surface the paywall immediately.
@@ -84,6 +99,12 @@ export default function WorldScreen() {
   // The first boss battle is where the paywall starts. Players who already beat it keep free replays.
   const bossLocked = !hasAccess && !bossDefeated;
 
+  const bossStatus = bossDefeated
+    ? 'Defeated!'
+    : allLevelsComplete
+    ? bossLocked ? 'Unlock premium to fight' : 'Ready to challenge'
+    : 'Complete all levels to unlock';
+
   const handleLevel = (levelId: number) => {
     if (!levelUnlocked(levelId)) return;
     router.push(`/level/${worldId}/${levelId}`);
@@ -116,27 +137,47 @@ export default function WorldScreen() {
           <Text className="text-muted-foreground mt-1">{world.subject}</Text>
         </View>
 
-        {/* Age Range Toggle */}
+        {/* Map / List toggle */}
         <View className="px-4 pt-4">
-          <Text className="text-sm text-muted-foreground mb-2">Question difficulty</Text>
           <View className="flex-row bg-card border border-border rounded-xl overflow-hidden">
-            {(['junior', 'senior'] as const).map((range) => (
+            {(['map', 'list'] as const).map((v) => (
               <TouchableOpacity
-                key={range}
-                onPress={() => setAgeRange(range)}
+                key={v}
+                onPress={() => chooseView(v)}
                 className="flex-1 py-2.5 items-center"
-                style={user.ageRange === range ? { backgroundColor: world.accentColor } : undefined}
+                style={view === v ? { backgroundColor: world.accentColor } : undefined}
               >
-                <Text
-                  className={`font-semibold capitalize ${user.ageRange === range ? 'text-white' : 'text-foreground'}`}
-                >
-                  {range === 'junior' ? 'Junior (6–9)' : 'Senior (10–13)'}
+                <Text className={`font-semibold ${view === v ? 'text-white' : 'text-foreground'}`}>
+                  {v === 'map' ? '🗺️ Map' : '☰ List'}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
+        {view === 'map' && (
+          <View className="px-4 pt-6 gap-3">
+            <WorldMap
+              worldId={worldId}
+              accent={world.accentColor}
+              avatarSource={getAvatarSource(user.avatarId)}
+              levelStars={levelStars}
+              levelUnlocked={levelUnlocked}
+              allLevelsComplete={allLevelsComplete}
+              bossDefeated={bossDefeated}
+              bossLocked={bossLocked}
+              onLevel={handleLevel}
+              onBoss={handleBoss}
+              storageKey={`@historyhadro_map_${worldId}`}
+            />
+            <Text className="text-center text-sm text-muted-foreground">
+              {world.bossName} · {bossStatus}
+            </Text>
+          </View>
+        )}
+
+        {view === 'list' && (
+        <>
         {/* Level Grid */}
         <View className="px-4 pt-6">
           <Text className="text-lg font-bold text-foreground mb-3">Levels</Text>
@@ -203,17 +244,13 @@ export default function WorldScreen() {
                   </View>
                 )}
               </View>
-              <Text className="text-xs text-muted-foreground">
-                {bossDefeated
-                  ? 'Defeated!'
-                  : allLevelsComplete
-                  ? bossLocked ? 'Unlock premium to fight' : 'Ready to challenge'
-                  : 'Complete all levels to unlock'}
-              </Text>
+              <Text className="text-xs text-muted-foreground">{bossStatus}</Text>
             </View>
             {bossDefeated && <Text className="text-yellow-400">✓</Text>}
           </TouchableOpacity>
         </View>
+        </>
+        )}
       </ScrollView>
       {paywallOpen && (
         <PaywallScreen modal onClose={() => setPaywallOpen(false)} />
