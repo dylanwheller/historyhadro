@@ -201,8 +201,14 @@ export default function BossScreen() {
   }, [awaitingNext]);
 
   const questions = useMemo<Question[]>(() => {
-    const pool = ALL_QUESTIONS.filter((q) => q.worldId === worldId && q.boss === true);
-    return shuffle(pool).slice(0, BOSS_QUESTIONS_TOTAL).map((q) => {
+    // Only ask questions at the player's own difficulty, so a junior never gets senior-level ones.
+    // Boss questions come first; if a world has fewer than a full fight of them at this difficulty,
+    // top up with that world's regular questions at the same difficulty.
+    const forWorld = ALL_QUESTIONS.filter((q) => q.worldId === worldId && q.difficulty === user.ageRange);
+    const bossPool = shuffle(forWorld.filter((q) => q.boss === true));
+    const topUp = shuffle(forWorld.filter((q) => q.boss !== true));
+    const pool = shuffle([...bossPool, ...topUp].slice(0, BOSS_QUESTIONS_TOTAL));
+    return pool.map((q) => {
       const idx = [0, 1, 2, 3];
       for (let i = idx.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -211,7 +217,7 @@ export default function BossScreen() {
       return { ...q, options: idx.map((i) => q.options[i]), correctIndex: idx.indexOf(q.correctIndex) };
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [worldId, restartKey]);
+  }, [worldId, restartKey, user.ageRange]);
 
   // Animations
   const shakeAnim      = useRef(new Animated.Value(0)).current;
